@@ -1,29 +1,19 @@
 # GoReleaser Integration
 
-This document explains how GoReleaser in the [ailign-cli/cli](https://github.com/ailign-cli/cli) repository integrates with this distribution repository.
+How GoReleaser in [ailign-cli/cli](https://github.com/ailign-cli/cli) integrates with this distribution repository.
 
-## Workflow Overview
+## Workflow
 
-When a release is created in `ailign-cli/cli`:
+1. A release is tagged in `ailign-cli/cli`.
+2. GoReleaser builds binaries for Linux, macOS, and Windows.
+3. GoReleaser generates manifests and opens a PR in this repository with updated files, release notes, and checksums.
+4. Maintainers review and merge.
 
-1. **GoReleaser runs** as part of the release workflow
-2. **Builds binaries** for multiple platforms (Linux, macOS, Windows)
-3. **Generates manifests** for each package manager:
-   - Homebrew Formula (`Formula/ailign.rb`)
-   - Scoop manifest (`ailign.json`)
-   - NUR packages (Nix expressions)
-   - WinGet manifests (YAML files)
-4. **Creates a Pull Request** in this repository with:
-   - Updated manifests
-   - Release notes in the PR description
-   - Version information
-   - Links to binaries and checksums
+## GoReleaser v2 configuration
 
-## GoReleaser Configuration
+Add these sections to `.goreleaser.yaml` in the CLI repository.
 
-The GoReleaser configuration in `ailign-cli/cli` should include sections for each package manager. Here's an example structure:
-
-### Homebrew Tap
+### Homebrew
 
 ```yaml
 brews:
@@ -34,27 +24,29 @@ brews:
       branch: main
     folder: Formula
     homepage: https://github.com/ailign-cli/cli
-    description: "AILign CLI tool"
-    license: "MIT"  # Adjust based on actual license
+    description: "Instruction governance and distribution for engineering organizations"
+    license: "Apache-2.0"
     install: |
       bin.install "ailign"
+    test: |
+      system "#{bin}/ailign", "version"
 ```
 
-### Scoop Bucket
+### Scoop
 
 ```yaml
-scoop:
+scoops:
   - name: ailign
     repository:
       owner: ailign-cli
       name: distribution
       branch: main
     homepage: https://github.com/ailign-cli/cli
-    description: "AILign CLI tool"
-    license: "MIT"  # Adjust based on actual license
+    description: "Instruction governance and distribution for engineering organizations"
+    license: "Apache-2.0"
 ```
 
-### NUR (Nix User Repository)
+### Nix
 
 ```yaml
 nix:
@@ -64,39 +56,45 @@ nix:
       name: distribution
       branch: main
     homepage: https://github.com/ailign-cli/cli
-    description: "AILign CLI tool"
-    license: "mit"  # Adjust based on actual license
+    description: "Instruction governance and distribution for engineering organizations"
+    license: asl20
+    path: pkgs/ailign/default.nix
 ```
 
 ### WinGet
+
+WinGet manifests are submitted directly to [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) via a fork, not to this repository.
 
 ```yaml
 winget:
   - name: ailign
     publisher: ailign-cli
-    license: "MIT"  # Adjust based on actual license
+    publisher_url: https://github.com/ailign-cli
+    license: "Apache-2.0"
     homepage: https://github.com/ailign-cli/cli
-    short_description: "AILign CLI tool"
+    short_description: "Instruction governance and distribution for engineering organizations"
     repository:
       owner: ailign-cli
-      name: distribution
-      branch: main
+      name: winget-pkgs
+      branch: "ailign-{{.Version}}"
+    pull_request:
+      enabled: true
+      base:
+        owner: microsoft
+        name: winget-pkgs
+        branch: master
 ```
 
-## Pull Request Process
+## PR review checklist
 
-1. **Automated PR Creation**: GoReleaser creates a PR with manifest updates
-2. **Review**: Maintainers review the PR to ensure:
-   - Version numbers are correct
-   - Download URLs are valid
-   - Checksums match
-   - Installation instructions work
-3. **Merge**: Once approved, the PR is merged
-4. **Availability**: Updated packages become available through their respective package managers
+When reviewing an automated GoReleaser PR:
 
-## Testing
+- Version numbers are correct
+- Download URLs are accessible
+- Checksums match the release artifacts
+- Formula/manifest syntax is valid
 
-After merging, test installations:
+## Testing after merge
 
 ```bash
 # Homebrew
@@ -106,34 +104,23 @@ brew install ailign
 # Scoop
 scoop bucket add ailign https://github.com/ailign-cli/distribution
 scoop install ailign
-
-# WinGet (may take time to propagate)
-winget install ailign-cli.ailign
 ```
 
 ## Troubleshooting
 
-Common issues and solutions:
-
-### PR Not Created
-- Check GoReleaser logs in the CLI repository
-- Verify GitHub token has write permissions to this repository
+### PR not created
+- Check GoReleaser logs in the CLI repository's release workflow
+- Verify the GitHub token has write access to this repository
 - Ensure repository settings allow PRs from workflows
 
-### Invalid Checksums
-- Verify the binary upload completed successfully
-- Check that the download URL is accessible
-- Re-run the GoReleaser build if needed
-
-### Installation Failures
-- Test the manifest locally before merging
-- Verify binary compatibility with target platform
-- Check package manager documentation for specific requirements
+### Invalid checksums
+- Verify the release binary upload completed before GoReleaser ran
+- Check that download URLs are publicly accessible
 
 ## References
 
 - [GoReleaser Documentation](https://goreleaser.com/)
-- [GoReleaser Homebrew Integration](https://goreleaser.com/customization/homebrew/)
-- [GoReleaser Scoop Integration](https://goreleaser.com/customization/scoop/)
-- [GoReleaser Nix Integration](https://goreleaser.com/customization/nix/)
-- [GoReleaser WinGet Integration](https://goreleaser.com/customization/winget/)
+- [GoReleaser Homebrew](https://goreleaser.com/customization/homebrew/)
+- [GoReleaser Scoop](https://goreleaser.com/customization/scoop/)
+- [GoReleaser Nix](https://goreleaser.com/customization/nix/)
+- [GoReleaser WinGet](https://goreleaser.com/customization/winget/)

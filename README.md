@@ -1,17 +1,22 @@
 # distribution
 
-Distribution channels for [ailign-cli/cli](https://github.com/ailign-cli/cli)
+Distribution channels for [ailign-cli/cli](https://github.com/ailign-cli/cli).
 
-This repository contains distribution manifests for the AILign CLI, supporting multiple package managers:
+This repository hosts package manager manifests for the AILign CLI. GoReleaser in the CLI repository automatically creates pull requests here when a new release is published.
 
-- **Homebrew** (macOS/Linux)
-- **Scoop** (Windows)
-- **NUR** (Nix User Repository)
-- **WinGet** (Windows Package Manager)
+## Supported package managers
 
-## 📦 Installation
+| Manager | Platform | Manifests in this repo |
+|---------|----------|----------------------|
+| [Homebrew](https://brew.sh/) | macOS / Linux | `Formula/ailign.rb` |
+| [Scoop](https://scoop.sh/) | Windows | `ailign.json` |
+| [Nix](https://nixos.org/) | macOS / Linux | `pkgs/ailign/default.nix` |
 
-### Homebrew (macOS/Linux)
+WinGet manifests are submitted directly to [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) by GoReleaser and are not stored in this repository.
+
+## Installation
+
+### Homebrew (macOS / Linux)
 
 ```bash
 brew tap ailign-cli/distribution
@@ -25,12 +30,10 @@ scoop bucket add ailign https://github.com/ailign-cli/distribution
 scoop install ailign
 ```
 
-### Nix (via NUR)
+### Nix
 
 ```bash
-# Add this repository to your NUR configuration
-# Then install with:
-nix-env -iA nur.repos.ailign-cli.ailign
+nix-env -iA ailign -f https://github.com/ailign-cli/distribution/archive/main.tar.gz
 ```
 
 ### WinGet (Windows)
@@ -39,33 +42,26 @@ nix-env -iA nur.repos.ailign-cli.ailign
 winget install ailign-cli.ailign
 ```
 
-## 🤖 Automated Updates
+## How it works
 
-This repository is automatically updated by [GoReleaser](https://goreleaser.com/) running in the [ailign-cli/cli](https://github.com/ailign-cli/cli) repository. When a new release is created, GoReleaser will:
+1. A release is tagged in `ailign-cli/cli`.
+2. GoReleaser builds binaries, generates manifests, and opens a PR in this repository.
+3. Maintainers review and merge the PR.
+4. Packages become available through their respective managers.
 
-1. Generate updated manifests for each package manager
-2. Create a pull request in this repository
-3. Include release notes, version information, and binary locations
+See [`.github/GORELEASER_INTEGRATION.md`](.github/GORELEASER_INTEGRATION.md) for configuration details.
 
-## 📁 Repository Structure
+## Repository structure
 
 ```
 distribution/
-├── Formula/          # Homebrew formulas (macOS/Linux CLI tools)
-├── Casks/           # Homebrew casks (macOS GUI applications)
-├── *.json           # Scoop manifests (Windows)
-└── README.md        # This file
+├── Formula/          # Homebrew formulas
+├── *.json            # Scoop manifests
+├── pkgs/             # Nix derivations
+├── scripts/          # Validation tooling
+└── .github/          # GoReleaser integration docs
 ```
 
-## 🔧 Manual Updates
+## License
 
-In most cases, you should not need to manually update manifests. However, if needed:
-
-1. Fork this repository
-2. Make your changes to the appropriate manifest file
-3. Create a pull request
-4. Ensure the manifest follows the package manager's guidelines
-
-## 📝 License
-
-See the [main CLI repository](https://github.com/ailign-cli/cli) for license information.
+Apache-2.0. See [LICENSE](LICENSE).
