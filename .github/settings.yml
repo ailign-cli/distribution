@@ -1,0 +1,85 @@
+# https://github.com/repository-settings/app
+
+repository:
+  description: Distribution channels for ailign-cli/cli
+  homepage: https://github.com/ailign-cli/cli
+  topics:
+    - homebrew-tap
+    - scoop-bucket
+    - nix
+    - package-manager
+    - cli-distribution
+
+  has_issues: true
+  has_wiki: false
+  has_projects: false
+  has_discussions: false
+
+  default_branch: main
+  allow_update_branch: true
+
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: false
+  allow_auto_merge: true
+  delete_branch_on_merge: true
+
+  squash_merge_commit_title: PR_TITLE
+  squash_merge_commit_message: PR_BODY
+
+  archived: false
+
+labels:
+  # Release versions
+  - name: "release"
+    color: "0e8a16"
+    description: "New CLI version release"
+
+  # Change types
+  - name: "build"
+    color: "f9d0c4"
+    description: "Build definition or CI/CD changes"
+  - name: "documentation"
+    color: "0075ca"
+    description: "Documentation updates"
+
+  # Package managers
+  - name: "homebrew"
+    color: "fbb117"
+    description: "Homebrew formula changes"
+  - name: "scoop"
+    color: "5319e7"
+    description: "Scoop manifest changes"
+  - name: "nix"
+    color: "7ebae4"
+    description: "Nix derivation changes"
+  - name: "winget"
+    color: "0078d7"
+    description: "WinGet manifest changes"
+
+  # Automation
+  - name: "automated"
+    color: "bfdadc"
+    description: "Created by GoReleaser automation"
+
+  # Triage
+  - name: "bug"
+    color: "d73a49"
+    description: "Something isn't working"
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      required_status_checks:
+        strict: true
+        contexts:
+          - "validate"
+      enforce_admins: false
+      required_linear_history: true
+      allow_force_pushes: false
+      allow_deletions: false
+      required_conversation_resolution: true
